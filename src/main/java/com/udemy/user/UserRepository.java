@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends GenericRepository<User, UUID> {
     Optional<User>findByPhoneNumber(String phone);
+    Optional<User> findUserById(UUID id);
+
 }

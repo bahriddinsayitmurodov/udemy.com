@@ -36,8 +36,12 @@ public class User implements UserDetails {
     private String email;
 
     private String phoneNumber;
+    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isPhoneNumberVerified = false;
 
     private String password;
+
+    private Integer smsCode;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

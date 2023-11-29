@@ -1,6 +1,8 @@
 package com.udemy.user;
 
 import com.udemy.common.service.GenericCrudService;
+import com.udemy.sms.dto.SmsSendDTO;
+import com.udemy.sms.service.SmsServiceImp;
 import com.udemy.user.dto.UserCreateDto;
 import com.udemy.user.dto.UserResponseDto;
 import com.udemy.user.dto.UserUpdateDto;
@@ -14,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -26,6 +29,7 @@ public class UserService extends GenericCrudService<User, UUID, UserCreateDto, U
     private final UserModelMapper mapper;
     private final Class<User> entityClass = User.class;
     private final PasswordEncoder passwordEncoder;
+    private final SmsServiceImp smsService;
 
     @Override
     public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
@@ -43,5 +47,43 @@ public class UserService extends GenericCrudService<User, UUID, UserCreateDto, U
         return user;
     }
 
+    public String phoneNumber(UUID id){
+        User user = repository.findUserById(id)
+                .orElseThrow(() -> new BadCredentialsException("bad credentials"));
 
+        return user.getPhoneNumber();
+    }
+    public String sendVerificationCode(UUID id) {
+        User user = repository.findUserById(id)
+                .orElseThrow(() -> new BadCredentialsException("bad credentials"));
+
+        String phoneNumber = user.getPhoneNumber();
+
+        int verificationCode = generateRandomSixDigitNumber();
+
+        user.setSmsCode(verificationCode);
+        repository.save(user);
+        return smsService.sendSms(new SmsSendDTO(phoneNumber,"Don't share this code with anyone else.\n Verification code: "+verificationCode));
+    }
+
+    public UserResponseDto checkVerificationCode(UUID id, Integer verificationCode) {
+        User user = repository.findUserById(id)
+                .orElseThrow(() -> new BadCredentialsException("bad credentials"));
+
+        if (!user.getSmsCode().equals(verificationCode)){
+            return mapper.toResponseDto(user);
+        }
+        user.setPhoneNumberVerified(true);
+        repository.save(user);
+        return mapper.toResponseDto(user);
+    }
+
+
+
+
+
+    private int generateRandomSixDigitNumber() {
+        Random random = new Random();
+        return random.nextInt(900000) + 100000;
+    }
 }

@@ -12,4 +12,5 @@ import java.util.UUID;
 public class UserResponseDto extends UserBaseDto{
 
     private UUID id;
+    private boolean isPhoneNumberVerified;
 }

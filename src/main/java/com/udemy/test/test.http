@@ -1,0 +1,12 @@
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "fewg",
+  "lastName": "strifewgng",
+  "middleName": "string",
+  "userType": "ADMIN",
+  "email": "string@mail.ru",
+  "phoneNumber": "+9989958645160",
+  "password": "string"
+}
